@@ -42,6 +42,7 @@ vmtools() {
   # vmtools function
   if [ "${_test}" -eq 1 ]; then
     echo "yum -y remove open-vm-tools && yum -y install hyperv-daemons hyperv-tools"
+    echo "=========="
   else
     yum -y remove open-vm-tools && yum -y install hyperv-daemons hyperv-tools
     if [ $? -ne 0 ]; then
@@ -55,6 +56,7 @@ backup() {
   echo "Saving network files"
   if [ "${_test}" -eq 1 ]; then
     echo "tar cf ${BKUP} ${SYSC}/network ${NWS}/ifcfg-e* ${IRAMFS}"
+    echo "============"
   else  
     tar cf ${BKUP} ${SYSC}/network ${NWS}/ifcfg-e* ${IRAMFS}
   fi
@@ -65,6 +67,7 @@ rhel7() {
   if [ "${_test}" -eq 1 ]; then
     echo "OS Version: RHEL 7"
     echo "Interfaces found: ${IFA[@]}"
+    echo "=========="
   else
     if [[ "${IFACES}" != *eth* ]]; then
       # fix the ifaces
@@ -87,6 +90,7 @@ rhel8() {
   if [ "${_test}" -eq 1 ]; then
     echo "OS Version: RHEL 7"
     echo "Interfaces found: ${IFA[@]}"
+    echo "=========="
   else
     if [[ "${IFACES}" != *eth* ]]; then
       # fix the ifaces
@@ -114,6 +118,7 @@ rhel8() {
 poweroff() {
   if [[ "${_test}" -eq 1 ]] || [[ "${_noshutdown}" -eq 1 ]]; then
     echo "No shutdown performed"
+    echo "=========="
   ## shutdown
   else
     echo "Shutting down in 5 sec. CTRL-C to stop" && sleep 5
@@ -125,20 +130,25 @@ poweroff() {
 restore() {
   if [ "${_test}" -eq 1 ]; then
     echo "TAR location: ${BKUP}"
+    echo "=========="
     exit $?
   else
     # Get rid of old files
     rm ${NWS}/ifcfg-e*
     # Restore tar file
     cd / ; tar xvf ${BKUP}
+    EXIT=$?
     if [ $? -gt 0 ]; then
       echo "Restore failed. Please check ${BKUP}"
-      exit $?
+      echo "=========="
+      exit $EXIT
     else
       echo "Restore complete"
-      exit 0
+      echo "=========="
+      exit $EXIT
     fi
   fi
+  
 }
 
 # CLInt GENERATED_CODE: start
