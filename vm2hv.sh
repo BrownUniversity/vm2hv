@@ -72,7 +72,7 @@ rhel7() {
     if [[ "${IFACES}" != *eth* ]]; then
       # fix the ifaces
       for I in "${!IFA[@]}"; do
-        sed "s/${I}/eth${I}/g; /HWADDR/d" ${NWC}/ifcfg-${IFA[$i]} > ${NWS}/ifcfg-eth${I}
+        sed "s/${IFA[$I]}/eth${I}/g; /HWADDR/d" ${NWC}/ifcfg-${IFA[$I]} > ${NWS}/ifcfg-eth${I}
       done
       # Swap gateway in network file
       sed -i "s/${IFA[0]}/eth0/" ${SYSC}/network
