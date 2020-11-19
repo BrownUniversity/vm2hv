@@ -136,9 +136,9 @@ restore() {
     # Get rid of old files
     rm ${NWS}/ifcfg-e*
     # Restore tar file
-    cd / ; tar xvf ${BKUP}
+    cd / ; tar xvf ${BKUP} && { yum -y install open-vm-tools && yum -y remove hyperv-daemons hyperv-tools }
     EXIT=$?
-    if [ $? -gt 0 ]; then
+    if [ $EXIT -gt 0 ]; then
       echo "Restore failed. Please check ${BKUP}"
       echo "=========="
       exit $EXIT
