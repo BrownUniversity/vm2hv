@@ -95,12 +95,12 @@ rhel8() {
     if [[ "${IFACES}" != *eth* ]]; then
       # fix the ifaces
       for I in "${!IFA[@]}"; do
-        sed "s/${I}/eth${I}/g; /HWADDR/d" ${NWS}/ifcfg-${IFA[$i]} > ${NWS}/ifcfg-eth${I}
+        sed "s/${IFA[$I]}/eth${I}/g; /HWADDR/d" ${NWS}/ifcfg-${IFA[$i]} > ${NWS}/ifcfg-eth${I}
       done
     else
       # Still remove HWADDR from ethX
       for I in "${!IFA[@]}"; do
-        sed -i "/HWADDR/d" ${NWS}/ifcfg-${IFA[$i]}
+        sed -i "/HWADDR/d" ${NWS}/ifcfg-${IFA[$I]}
       done
     fi
   fi
