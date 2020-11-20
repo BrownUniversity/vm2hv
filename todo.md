@@ -5,3 +5,5 @@
 - [X] Help/Usage text
 - [X] Fix interface enumeration/label issue in rhel7 and rhel8 functions
 - [ ] Test on VM with multiple interfaces
+  - [X] RHEL 7
+  - [ ] RHEL 8
