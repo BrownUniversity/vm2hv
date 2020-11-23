@@ -41,10 +41,10 @@ help() {
 vmtools() {
   # vmtools function
   if [ "${_test}" -eq 1 ]; then
-    echo "yum -yq remove open-vm-tools && yum -yq install hyperv-daemons hyperv-tools"
+    echo "yum -yq -e 0remove open-vm-tools && yum -yq -e 0 install hyperv-daemons hyperv-tools"
     echo "=========="
   else
-    yum -yq remove open-vm-tools && yum -yq install hyperv-daemons hyperv-tools
+    yum -yq -e 0 remove open-vm-tools && yum -yq -e 0 install hyperv-daemons hyperv-tools
     if [ $? -ne 0 ]; then
       echo "YUM command failed. exiting"
       exit 1
