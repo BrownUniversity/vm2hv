@@ -83,6 +83,13 @@ rhel7() {
       done
     fi
   fi
+  if [ "${_test}" -eq 1 ]; then
+    echo "mkinitrd -f -v --with=hid-hyperv --with=hv_utils --with=hv_vmbus --with=hv_storvsc --with=hv_netvsc /boot/initramfs-$(uname -r).img $(uname -r)"
+  else
+    # Remove GATEWAY* from network file
+    # run mkinitrd
+    mkinitrd -f -v --with=hid-hyperv --with=hv_utils --with=hv_vmbus --with=hv_storvsc --with=hv_netvsc /boot/initramfs-$(uname -r).img $(uname -r)
+  fi
 }
 
 rhel8() {
