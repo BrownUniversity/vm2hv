@@ -13,7 +13,7 @@ IRAMFS=/boot/initramfs-$(uname -r).img
 SYSC=/etc/sysconfig
 NWS=${SYSC}/network-scripts
 OSVER=$(lsb_release -r | grep -oP "[0-9]+" | head -1)
-IFACES=$(basename -a /sys/class/net/* | grep -v lo)
+IFACES=$(basename -a /sys/class/net/* | grep -v lo | grep -E '^ens[0-9]{3}\b|^eth[0-9]{1}\b')
 IFA=($IFACES)
 
 # Help text variables
