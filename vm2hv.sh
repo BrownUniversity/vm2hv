@@ -59,7 +59,7 @@ backup() {
     echo "tar cf ${BKUP} ${SYSC}/network ${NWS}/ifcfg-e* ${IRAMFS} ${NRULES}"
     echo "============"
   else  
-    tar cf ${BKUP} ${SYSC}/network ${NWS}/ifcfg-e* ${IRAMFS}
+    tar cf ${BKUP} ${SYSC}/network ${NWS}/ifcfg-e* ${IRAMFS} ${NRULES}
   fi
 }
 
