@@ -14,6 +14,7 @@ SYSC=/etc/sysconfig
 NWS=${SYSC}/network-scripts
 OSVER=$(lsb_release -r | grep -oP "[0-9]+" | head -1)
 IFACES=$(ls -1 /sys/class/net/ | grep -v lo | grep -E '^ens[0-9]{3}\b|^eth[0-9]{1}\b')
+NRULES=/etc/udev/rules.d/70-persistent-net.rules
 IFA=($IFACES)
 
 # Help text variables
@@ -55,14 +56,14 @@ vmtools() {
 backup() {
   echo "Saving network files"
   if [ "${_test}" -eq 1 ]; then
-    echo "tar cf ${BKUP} ${SYSC}/network ${NWS}/ifcfg-e* ${IRAMFS}"
+    echo "tar cf ${BKUP} ${SYSC}/network ${NWS}/ifcfg-e* ${IRAMFS} ${NRULES}"
     echo "============"
   else  
     tar cf ${BKUP} ${SYSC}/network ${NWS}/ifcfg-e* ${IRAMFS}
   fi
 }
 
-rhel7() {
+rhel76() {
   # rhel 7 function
   if [ "${_test}" -eq 1 ]; then
     echo "OS Version: RHEL ${OSVER}"
@@ -85,10 +86,12 @@ rhel7() {
   fi
   if [ "${_test}" -eq 1 ]; then
     echo "mkinitrd -f -v --with=hid-hyperv --with=hv_utils --with=hv_vmbus --with=hv_storvsc --with=hv_netvsc /boot/initramfs-$(uname -r).img $(uname -r)"
+    echo "rm ${NRULES}"
   else
     # Remove GATEWAY* from network file
     # run mkinitrd
     mkinitrd -f -v --with=hid-hyperv --with=hv_utils --with=hv_vmbus --with=hv_storvsc --with=hv_netvsc /boot/initramfs-$(uname -r).img $(uname -r)
+    rm ${NRULES}
   fi
 }
 
@@ -222,7 +225,7 @@ case ${OSVER} in
   7|6) 
     backup
     vmtools
-    rhel7
+    rhel76
     poweroff
     ;;
   8) 
