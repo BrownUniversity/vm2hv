@@ -219,7 +219,7 @@ fi
 
 # OS test: RHEL 7 or RHEL 8
 case ${OSVER} in 
-  7) 
+  7|6) 
     backup
     vmtools
     rhel7
