@@ -15,6 +15,7 @@ UBMODS=/etc/initramfs-tools/modules
 NWS=${SYSC}/network-scripts
 NETP=/etc/netplan
 NPUB=99-netcfg-vmware.yaml
+NPHV=99-netcfg-hyperv.yaml
 OSDIST=$(lsb_release -d)
 OSVER=$(lsb_release -r | grep -oP "[0-9]+" | head -1)
 
@@ -41,7 +42,7 @@ help() {
 
 # Code funtions
 ifaces() {}
-  IFACES=$(basename -a /sys/class/net/* | grep -v lo | grep -E '^ens[0-9]{3}\b|^eth[0-9]{1}\b')
+  IFACES=$(ls -1 /sys/class/net/ | grep -v lo | grep -E '^ens[0-9]{3}\b|^eth[0-9]{1}\b')
   IFA=($IFACES)
 }
 
@@ -73,6 +74,7 @@ vmtools() {
         fi
       fi
       ;;
+  esac
 }
 
 backup() {
@@ -80,26 +82,27 @@ backup() {
   case ${OSDIST} in
     redat)
       if [ "${_test}" -eq 1 ]; then
-        echo "tar chf ${BKUP} ${NETP}/network ${NWS}/ifcfg-e* ${IRAMFS}"
+        echo "tar cvf ${BKUP} ${NETP}/network ${NWS}/ifcfg-e* ${IRAMFS}"
         echo "============"
       else  
-        tar chf ${BKUP} ${NETP}/network ${NWS}/ifcfg-e* /boot/${IRAMFS}
+        tar cvf ${BKUP} ${NETP}/network ${NWS}/ifcfg-e* /boot/${IRAMFS}
       fi
       ;;
     ubuntu)
       if [ "${_test}" -eq 1 ]; then
-        echo "tar chf ${BKUP} ${NETP}/${NPUB} /${IRAMFS}"
+        echo "tar cvf ${BKUP} ${NETP}/${NPUB} /boot/${IRAMFS}"
         echo "============"
       else  
-        tar cf ${BKUP} ${NETP}/${NPUB}
+        tar cvf ${BKUP} ${NETP}/${NPUB} /boot/${IRAMFS}
       fi
       ;;
+  esac
 }
 
-rhel7() {
+rhel76() {
   # rhel 7 function
   if [ "${_test}" -eq 1 ]; then
-    echo "OS Version: RHEL 7"
+    echo "OS Version: RHEL ${OSVER}"
     echo "Interfaces found: ${IFA[@]}"
     echo "=========="
   else
@@ -159,7 +162,20 @@ rhel8() {
 ubuntu() {
   # ubuntu function
   ## Check test
-  ## Sed out interfaces
+  if [ "${_test}" -eq 1 ]; then
+    echo "OS Version: Ubuntu ${OSVER}"
+    echo "Interfaces found: ${IFA[@]}"
+    echo "=========="
+  else
+    if [[ "${IFACES}" != *eth* ]]; then
+      # Sed out interfaces
+      sed 's/ens160/eth0/g ; s/ens192/eth1/g ; s/ens224/eth2/g' ${NETP}/${NPUB} > ${NETP}/${NPHV}
+      if [ -f ${NETP}/${NPHV} ] ; then 
+        rm ${NETP}/${NPUB}
+      else
+        echo "NETWORK ISSUE, STOPPING"
+        exit 1
+      done
   ## initrd
 }
 
@@ -278,12 +294,18 @@ case ${OSDIST} in
       18)
         OSDIST=ubuntu
         ifaces
-        echo ${OSVER}
+        backup
+        vmtools
+        ubuntu
+        poweroff
         ;;
       20)
         OSDIST=ubuntu
         ifaces
-        echo ${OSVER}
+        backup
+        vmtools
+        ubuntu
+        poweroff
         ;;
       *)
         echo "OS Version failure"
@@ -294,12 +316,12 @@ case ${OSDIST} in
   *[hH]at*)
   # OS test: RHEL 7 or RHEL 8
     case ${OSVER} in 
-      7) 
+      7|9) 
         OSDIST=redhat
         ifaces
         backup
         vmtools
-        rhel7
+        rhel76
         poweroff
         ;;
       8) 
