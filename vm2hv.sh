@@ -65,7 +65,7 @@ backup() {
 rhel7() {
   # rhel 7 function
   if [ "${_test}" -eq 1 ]; then
-    echo "OS Version: RHEL 7"
+    echo "OS Version: RHEL ${OSVER}"
     echo "Interfaces found: ${IFA[@]}"
     echo "=========="
   else
@@ -95,7 +95,7 @@ rhel7() {
 rhel8() {
   # rhel 8 function
   if [ "${_test}" -eq 1 ]; then
-    echo "OS Version: RHEL 7"
+    echo "OS Version: RHEL ${OSVER}"
     echo "Interfaces found: ${IFA[@]}"
     echo "=========="
   else
