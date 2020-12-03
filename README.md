@@ -27,8 +27,10 @@ This script will *NOT* execute conversion without the -y,--yes option
 
 ## How to Run on Systems
 
-```# wget https://raw.githubusercontent.com/BrownUniversity/vm2hv/main/vm2hv.sh ; chmod 755 vm2hv.sh```
-```# ./vm2hv.sh -y```
+```
+# wget https://raw.githubusercontent.com/BrownUniversity/vm2hv/main/vm2hv.sh ; chmod 755 vm2hv.sh
+# ./vm2hv.sh -y
+```
 
 This will config and shutdown the system. Conversion can begin.
 
