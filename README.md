@@ -2,7 +2,14 @@
 
 ## Description
 
-Utility to assist in migration of RHEL system from ESXi to Hyper-V
+Utility to assist in migration of RHEL system from ESXi to Hyper-V. 
+
+OS support:
+* RHEL 6
+* RHEL 7
+* RHEL 8
+
+(Ubuntu support in feat branches)
 
 ## How to Run on Systems or TL;DR
 
