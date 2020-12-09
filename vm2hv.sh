@@ -92,7 +92,7 @@ backup() {
   case ${OSDIST} in
     redhat)
       if [ "${_test}" -eq 1 ]; then
-        echo "tar cvf ${BKUP} ${NETP}/network ${NWS}/ifcfg-e* ${IRAMFS}"
+        echo "tar cvf ${BKUP} ${SYSC}/network ${NWS}/ifcfg-e* ${IRAMFS}"
         echo "============"
       else  
         tar cvf ${BKUP} ${NETP}/network ${NWS}/ifcfg-e* /boot/${IRAMFS}
