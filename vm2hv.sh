@@ -179,8 +179,9 @@ ubuntu() {
     else
       echo "No IFACES to change."
     fi
+    ## run mkinitrd
+    mkinitrd -f -v --with=hid-hyperv --with=hv_utils --with=hv_vmbus --with=hv_storvsc --with=hv_netvsc /boot/initramfs-$(uname -r).img $(uname -r)
   fi
-  ## initrd
 }
 
 poweroff() {
