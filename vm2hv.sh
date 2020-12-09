@@ -100,10 +100,10 @@ backup() {
       ;;
     ubuntu)
       if [ "${_test}" -eq 1 ]; then
-        echo "tar cvf ${BKUP} ${NETP}/${NPUB} /boot/${IRAMFS}"
+        echo "tar cvf ${BKUP} ${NETP}/${NPUB}"
         echo "============"
       else  
-        tar cvf ${BKUP} ${NETP}/${NPUB} /boot/${IRAMFS}
+        tar cvf ${BKUP} ${NETP}/${NPUB}
       fi
       ;;
   esac
