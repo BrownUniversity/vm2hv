@@ -90,7 +90,7 @@ vmtools() {
 backup() {
   echo "Saving network files"
   case ${OSDIST} in
-    redat)
+    redhat)
       if [ "${_test}" -eq 1 ]; then
         echo "tar cvf ${BKUP} ${NETP}/network ${NWS}/ifcfg-e* ${IRAMFS}"
         echo "============"
