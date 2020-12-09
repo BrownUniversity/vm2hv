@@ -26,7 +26,7 @@ case ${OSDIST} in
   *[hH]at*)
     OSDIST=redhat
     ;;
-case
+esac
 
 
 # Help text variables
