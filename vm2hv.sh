@@ -95,7 +95,7 @@ backup() {
         echo "tar cvf ${BKUP} ${SYSC}/network ${NWS}/ifcfg-e* ${IRAMFS}"
         echo "============"
       else  
-        tar cvf ${BKUP} ${NETP}/network ${NWS}/ifcfg-e* /boot/${IRAMFS}
+        tar cvf ${BKUP} ${SYSC}/network ${NWS}/ifcfg-e* /boot/${IRAMFS}
       fi
       ;;
     ubuntu)
