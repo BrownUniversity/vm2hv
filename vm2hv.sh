@@ -204,7 +204,7 @@ restore() {
       else
         # Get rid of old files
         rm ${NWS}/ifcfg-e*
-        # Restore tar file
+        # Restore tar file, uninstall hyperV tools, install open-vm-tools
         cd / ; tar xvf ${BKUP} && ( yum -yq -e 0 install open-vm-tools && yum -yq -e 0 remove hyperv-daemons hyperv-tools )
         EXIT=$?
         if [ $EXIT -gt 0 ]; then
@@ -219,7 +219,7 @@ restore() {
       fi
       ;;
     ubuntu)
-            if [ "${_test}" -eq 1 ]; then
+      if [ "${_test}" -eq 1 ]; then
         echo "TAR location: ${BKUP}"
         echo "Packages: "
         echo -e "\tInstall: open-vm-tools"
@@ -227,6 +227,21 @@ restore() {
         echo "=========="
         exit $?
       else
+        # Get rid of old files
+        rm ${NETP}/${NPHV}
+        # Restore tar file, uninstall hyperV tools, install open-vm-tools
+        cd / ; tar xvf ${BKUP} ( apt-get -yq install open-vm-tools && apt-get -yq remove linux-virtual linux-cloud-tools-virtual linux-tools-virtual )
+        EXIT=$?
+        if [ $EXIT -gt 0 ]; then
+          echo "Restore failed. Please check ${BKUP}"
+          echo "=========="
+          exit $EXIT
+        else
+          echo "Restore complete"
+          echo "=========="
+          exit $EXIT
+        fi
+      fi
       ;;
 }
 
