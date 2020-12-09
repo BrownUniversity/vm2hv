@@ -8,8 +8,7 @@ OS support:
 * RHEL 6
 * RHEL 7
 * RHEL 8
-
-(Ubuntu support in feat branches)
+* Ubuntu 18.04
 
 ## How to Run on Systems or TL;DR
 

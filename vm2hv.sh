@@ -9,13 +9,25 @@ root() {
 
 # Variables
 BKUP=/root/vm2hv-BAK.tar
-IRAMFS=/boot/initramfs-$(uname -r).img
+IRAMFS=initramfs-$(uname -r).img
 SYSC=/etc/sysconfig
+UBMODS=/etc/initramfs-tools/modules
 NWS=${SYSC}/network-scripts
+NETP=/etc/netplan
+NPUB=99-netcfg-vmware.yaml
+NPHV=99-netcfg-hyperv.yaml
+OSDIST=$(lsb_release -d)
 OSVER=$(lsb_release -r | grep -oP "[0-9]+" | head -1)
-IFACES=$(ls -1 /sys/class/net/ | grep -v lo | grep -E '^ens[0-9]{3}\b|^eth[0-9]{1}\b')
-NRULES=/etc/udev/rules.d/70-persistent-net.rules
-IFA=($IFACES)
+
+case ${OSDIST} in
+  *[Uu]buntu*)
+    OSDIST=ubuntu
+    ;;
+  *[hH]at*)
+    OSDIST=redhat
+    ;;
+esac
+
 
 # Help text variables
 NORM=`tput sgr0`
@@ -39,28 +51,62 @@ help() {
 }
 
 # Code funtions
+ifaces() {
+  IFACES=$(ls -1 /sys/class/net/ | grep -v lo | grep -E '^ens[0-9]{3}\b|^eth[0-9]{1}\b')
+  IFA=($IFACES)
+}
+
 vmtools() {
-  # vmtools function
-  if [ "${_test}" -eq 1 ]; then
-    echo "yum -yq -e 0 remove open-vm-tools && yum -yq -e 0 install hyperv-daemons hyperv-tools"
-    echo "=========="
-  else
-    yum -yq -e 0 remove open-vm-tools && yum -yq -e 0 install hyperv-daemons hyperv-tools
-    if [ $? -ne 0 ]; then
-      echo "YUM command failed. exiting"
-      exit 1
-    fi
-  fi
+  case ${OSDIST} in
+    ubuntu)
+      # vmtools function
+      if [ "${_test}" -eq 1 ]; then
+        echo "apt-get -yq remove open-vm-tools && apt-get -yq install linux-virtual linux-cloud-tools-virtual linux-tools-virtual"
+        echo "=========="
+      else
+        apt-get -yq remove open-vm-tools && apt-get -yq install linux-virtual linux-cloud-tools-virtual linux-tools-virtual
+        if [ $? -ne 0 ]; then
+          echo "APT command failed. exiting"
+          exit 1
+        fi
+      fi
+      ;;
+    redhat)
+      # vmtools function
+      if [ "${_test}" -eq 1 ]; then
+        echo "yum -yq -e 0 remove open-vm-tools && yum -yq -e 0 install hyperv-daemons hyperv-tools"
+        echo "=========="
+      else
+        yum -yq -e 0 remove open-vm-tools && yum -yq -e 0 install hyperv-daemons hyperv-tools
+        if [ $? -ne 0 ]; then
+          echo "YUM command failed. exiting"
+          exit 1
+        fi
+      fi
+      ;;
+  esac
 }
 
 backup() {
   echo "Saving network files"
-  if [ "${_test}" -eq 1 ]; then
-    echo "tar cf ${BKUP} ${SYSC}/network ${NWS}/ifcfg-e* ${IRAMFS} ${NRULES}"
-    echo "============"
-  else  
-    tar cf ${BKUP} ${SYSC}/network ${NWS}/ifcfg-e* ${IRAMFS} ${NRULES}
-  fi
+  case ${OSDIST} in
+    redhat)
+      if [ "${_test}" -eq 1 ]; then
+        echo "tar cvf ${BKUP} ${SYSC}/network ${NWS}/ifcfg-e* ${IRAMFS}"
+        echo "============"
+      else  
+        tar cvf ${BKUP} ${SYSC}/network ${NWS}/ifcfg-e* /boot/${IRAMFS}
+      fi
+      ;;
+    ubuntu)
+      if [ "${_test}" -eq 1 ]; then
+        echo "tar cvf ${BKUP} ${NETP}/${NPUB}"
+        echo "============"
+      else  
+        tar cvf ${BKUP} ${NETP}/${NPUB}
+      fi
+      ;;
+  esac
 }
 
 rhel76() {
@@ -125,6 +171,29 @@ rhel8() {
   fi
 }
 
+ubuntu() {
+  # ubuntu function
+  ## Check test
+  if [ "${_test}" -eq 1 ]; then
+    echo "OS Version: Ubuntu ${OSVER}"
+    echo "Interfaces found: ${IFA[@]}"
+    echo "=========="
+  else
+    if [[ "${IFACES}" != *eth* ]]; then
+      # Sed out interfaces
+      sed 's/ens160/eth0/g ; s/ens192/eth1/g ; s/ens224/eth2/g' ${NETP}/${NPUB} > ${NETP}/${NPHV}
+      if [ -f ${NETP}/${NPHV} ] ; then 
+        rm ${NETP}/${NPUB}
+      else
+        echo "NETWORK ISSUE, STOPPING"
+        exit 1
+      fi
+    else
+      echo "No IFACES to change."
+    fi
+  fi
+}
+
 poweroff() {
   if [[ "${_test}" -eq 1 ]] || [[ "${_noshutdown}" -eq 1 ]]; then
     echo "No shutdown performed"
@@ -138,29 +207,59 @@ poweroff() {
 
 # reverse it all
 restore() {
-  if [ "${_test}" -eq 1 ]; then
-    echo "TAR location: ${BKUP}"
-    echo "Packages: "
-    echo -e "\tInstall: open-vm-tools"
-    echo -e "\tRemove: hyperv-daemons hyperv-tools"
-    echo "=========="
-    exit $?
-  else
-    # Get rid of old files
-    rm ${NWS}/ifcfg-e*
-    # Restore tar file
-    cd / ; tar xvf ${BKUP} && ( yum -yq -e 0 install open-vm-tools && yum -yq -e 0 remove hyperv-daemons hyperv-tools )
-    EXIT=$?
-    if [ $EXIT -gt 0 ]; then
-      echo "Restore failed. Please check ${BKUP}"
-      echo "=========="
-      exit $EXIT
-    else
-      echo "Restore complete"
-      echo "=========="
-      exit $EXIT
-    fi
-  fi
+  case ${OSDIST} in
+    redhat)
+      if [ "${_test}" -eq 1 ]; then
+        echo "TAR location: ${BKUP}"
+        echo "Packages: "
+        echo -e "\tInstall: open-vm-tools"
+        echo -e "\tRemove: hyperv-daemons hyperv-tools"
+        echo "=========="
+        exit $?
+      else
+        # Get rid of old files
+        rm ${NWS}/ifcfg-e*
+        # Restore tar file, uninstall hyperV tools, install open-vm-tools
+        cd / ; tar xvf ${BKUP} && ( yum -yq -e 0 install open-vm-tools && yum -yq -e 0 remove hyperv-daemons hyperv-tools )
+        EXIT=$?
+        if [ $EXIT -gt 0 ]; then
+          echo "Restore failed. Please check ${BKUP}"
+          echo "=========="
+          exit $EXIT
+        else
+          echo "Restore complete"
+          echo "=========="
+          exit $EXIT
+        fi
+      fi
+      ;;
+    ubuntu)
+      if [ "${_test}" -eq 1 ]; then
+        echo "TAR location: ${BKUP}"
+        echo "Packages: "
+        echo -e "\tInstall: open-vm-tools"
+        echo -e "\tRemove: "
+        echo "=========="
+        exit $?
+      else
+        # Get rid of old files
+        rm ${NETP}/${NPHV}
+        # Restore tar file, uninstall hyperV tools, install open-vm-tools
+        cd / ; tar xvf ${BKUP} && ( apt-get -yq install open-vm-tools && apt-get -yq remove linux-virtual linux-cloud-tools-virtual linux-tools-virtual )
+        EXIT=$?
+        if [ $EXIT -gt 0 ]; then
+          echo "Restore failed. Please check ${BKUP}"
+          echo "=========="
+          exit $EXIT
+        else
+          echo "Restore complete"
+          echo "=========="
+          exit $EXIT
+        fi
+      fi
+      ;;
+  esac
+
 }
 
 # CLInt GENERATED_CODE: start
@@ -220,21 +319,58 @@ if [ "${_restore}" -eq 1 ]; then
   exit $?
 fi
 
-# OS test: RHEL 7 or RHEL 8
-case ${OSVER} in 
-  7|6) 
-    backup
-    vmtools
-    rhel76
-    poweroff
+# OS test: RHEL or Ubuntu
+case ${OSDIST} in
+  ubuntu)
+    case ${OSVER} in
+      18)
+        OSDIST=ubuntu
+        ifaces
+        backup
+        vmtools
+        ubuntu
+        poweroff
+        ;;
+      20)
+        OSDIST=ubuntu
+        ifaces
+        backup
+        vmtools
+        ubuntu
+        poweroff
+        ;;
+      *)
+        echo "OS Version failure"
+        echo ${OSVER}
+        exit 1
+    esac
     ;;
-  8) 
-    backup
-    vmtools
-    rhel8
-    poweroff
+  redhat)
+  # OS test: RHEL 7 or RHEL 8
+    case ${OSVER} in 
+      7|9) 
+        OSDIST=redhat
+        ifaces
+        backup
+        vmtools
+        rhel76
+        poweroff
+        ;;
+      8) 
+        OSDIST=redhat
+        ifaces
+        backup
+        vmtools
+        rhel8
+        poweroff
+        ;;
+      *)
+        echo "OS version failure"
+        exit 1
+    esac
     ;;
-  *)
-    echo "OS version failure"
+  *) 
+    echo "No valid OS found:"
+    echo ${OSDIST}
     exit 1
-esac
+  esac

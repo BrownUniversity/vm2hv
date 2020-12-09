@@ -8,3 +8,14 @@
   - [X] RHEL 7
   - [X] RHEL 8
 - [X] Add mkinit/dracut to RHEL 7 (some systems need it)
+- [X] Add Ubuntu support - Integrate into backup, tools and restore
+  - [X] os detect
+  - [X] backup
+  - [X] vmtools
+  - [X] iface detect (make universal function)
+  - [X] network fix - Own functions (18 and 20)
+    ens160 = eth0
+    ens192 = eth1
+    ens224 = eth2
+    ens??? = eth3
+  - [X] restore
