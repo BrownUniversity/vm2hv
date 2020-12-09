@@ -41,7 +41,7 @@ help() {
 }
 
 # Code funtions
-ifaces() {}
+ifaces() {
   IFACES=$(ls -1 /sys/class/net/ | grep -v lo | grep -E '^ens[0-9]{3}\b|^eth[0-9]{1}\b')
   IFA=($IFACES)
 }
@@ -175,7 +175,11 @@ ubuntu() {
       else
         echo "NETWORK ISSUE, STOPPING"
         exit 1
-      done
+      fi
+    else
+      echo "No IFACES to change."
+    fi
+  fi
   ## initrd
 }
 
@@ -230,7 +234,7 @@ restore() {
         # Get rid of old files
         rm ${NETP}/${NPHV}
         # Restore tar file, uninstall hyperV tools, install open-vm-tools
-        cd / ; tar xvf ${BKUP} ( apt-get -yq install open-vm-tools && apt-get -yq remove linux-virtual linux-cloud-tools-virtual linux-tools-virtual )
+        cd / ; tar xvf ${BKUP} && ( apt-get -yq install open-vm-tools && apt-get -yq remove linux-virtual linux-cloud-tools-virtual linux-tools-virtual )
         EXIT=$?
         if [ $EXIT -gt 0 ]; then
           echo "Restore failed. Please check ${BKUP}"
@@ -243,6 +247,8 @@ restore() {
         fi
       fi
       ;;
+  esac
+
 }
 
 # CLInt GENERATED_CODE: start
