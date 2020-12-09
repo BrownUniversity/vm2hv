@@ -10,10 +10,10 @@
 - [X] Add mkinit/dracut to RHEL 7 (some systems need it)
 - [ ] Add Ubuntu support - Integrate into backup, tools and restore
   - [X] os detect
-  - [ ] backup
-  - [ ] vmtools
+  - [X] backup
+  - [X] vmtools
   - [X] iface detect (make universal function)
-  - [ ] network fix - Own functions (18 and 20)
+  - [X] network fix - Own functions (18 and 20)
     ens160 = eth0
     ens192 = eth1
     ens224 = eth2

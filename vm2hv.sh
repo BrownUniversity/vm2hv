@@ -19,6 +19,16 @@ NPHV=99-netcfg-hyperv.yaml
 OSDIST=$(lsb_release -d)
 OSVER=$(lsb_release -r | grep -oP "[0-9]+" | head -1)
 
+case ${OSDIST} in
+  *[Uu]buntu*)
+    OSDIST=ubuntu
+    ;;
+  *[hH]at*)
+    OSDIST=redhat
+    ;;
+case
+
+
 # Help text variables
 NORM=`tput sgr0`
 BOLD=`tput bold`
@@ -309,7 +319,7 @@ fi
 
 # OS test: RHEL or Ubuntu
 case ${OSDIST} in
-  *[Uu]buntu*)
+  ubuntu)
     case ${OSVER} in
       18)
         OSDIST=ubuntu
@@ -333,7 +343,7 @@ case ${OSDIST} in
         exit 1
     esac
     ;;
-  *[hH]at*)
+  redhat)
   # OS test: RHEL 7 or RHEL 8
     case ${OSVER} in 
       7|9) 
