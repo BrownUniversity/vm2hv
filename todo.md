@@ -8,7 +8,7 @@
   - [X] RHEL 7
   - [X] RHEL 8
 - [X] Add mkinit/dracut to RHEL 7 (some systems need it)
-- [ ] Add Ubuntu support - Integrate into backup, tools and restore
+- [X] Add Ubuntu support - Integrate into backup, tools and restore
   - [X] os detect
   - [X] backup
   - [X] vmtools
@@ -18,4 +18,4 @@
     ens192 = eth1
     ens224 = eth2
     ens??? = eth3
-  - [ ] restore
+  - [X] restore
