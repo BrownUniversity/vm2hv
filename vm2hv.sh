@@ -348,7 +348,7 @@ case ${OSDIST} in
   redhat)
   # OS test: RHEL 7 or RHEL 8
     case ${OSVER} in 
-      7|9) 
+      7|6) 
         OSDIST=redhat
         ifaces
         backup
