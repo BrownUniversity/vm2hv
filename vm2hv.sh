@@ -18,6 +18,7 @@ NPUB=99-netcfg-vmware.yaml
 NPHV=99-netcfg-hyperv.yaml
 OSDIST=$(lsb_release -d)
 OSVER=$(lsb_release -r | grep -oP "[0-9]+" | head -1)
+UDEV=/etc/udev/rules.d/70-persistent-net.rules
 
 case ${OSDIST} in
   *[Uu]buntu*)
@@ -92,10 +93,10 @@ backup() {
   case ${OSDIST} in
     redhat)
       if [ "${_test}" -eq 1 ]; then
-        echo "tar cvf ${BKUP} ${SYSC}/network ${NWS}/ifcfg-e* ${IRAMFS}"
+        echo "tar cvf ${BKUP} ${SYSC}/network ${NWS}/ifcfg-e* ${IRAMFS} ${UDEV}"
         echo "============"
       else  
-        tar cvf ${BKUP} ${SYSC}/network ${NWS}/ifcfg-e* /boot/${IRAMFS}
+        tar cvf ${BKUP} ${SYSC}/network ${NWS}/ifcfg-e* /boot/${IRAMFS} ${UDEV}
       fi
       ;;
     ubuntu)
@@ -127,6 +128,8 @@ rhel76() {
       # Still remove HWADDR from ethX
       for I in "${!IFA[@]}"; do
         sed -i "/HWADDR/d" ${NWS}/ifcfg-${IFA[$I]}
+        rm ${UDEV}
+        
       done
     fi
   fi
