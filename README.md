@@ -10,6 +10,9 @@ OS support:
 * RHEL 8
 * Ubuntu 18.04
 
+In addition, there is a post-zerto script that will remove vmtools and install
+HyperV tools.
+
 ## How to Run on Systems or TL;DR
 
 This **should** be all you need to do on the VM before it is shutdown for conversion.
@@ -19,6 +22,14 @@ This **should** be all you need to do on the VM before it is shutdown for conver
 # ./vm2hv.sh -y
 ```
 This will config and shutdown the system. Conversion can begin.
+
+### zertvert
+
+```
+# wget https://raw.githubusercontent.com/BrownUniversity/vm2hv/main/zertvert.sh ; chmod 755 zertvert.sh
+# ./zertvert.sh -y
+```
+This will remove open-vm-tools (VMware Tools) and install hyperv-tools.
 
 ## Requires
 
