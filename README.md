@@ -23,13 +23,18 @@ This **should** be all you need to do on the VM before it is shutdown for conver
 ```
 This will config and shutdown the system. Conversion can begin.
 
-### zertvert
+### zerto and post-zerto
+
+When doing zerto migrattions leave VMware until after the migration is complete, where you can then 
+run post-zerto.sh
 
 ```
+# wget https://raw.githubusercontent.com/BrownUniversity/vm2hv/main/zerto.sh ; chmod 755 zertvert.sh
+# ./zerto.sh -y
+
 # wget https://raw.githubusercontent.com/BrownUniversity/vm2hv/main/zertvert.sh ; chmod 755 zertvert.sh
 # ./zertvert.sh -y
 ```
-This will remove open-vm-tools (VMware Tools) and install hyperv-tools.
 
 ## Requires
 
