@@ -53,7 +53,7 @@ help() {
 ifaces() {
   IFACES=$(/usr/bin/ls -1 /sys/class/net/ | grep -v lo | grep -E '^ens[0-9]{3}\b|^eth[0-9]{1}\b')
   if [[ "${IFACES}" = *eth* ]]; then 
-    if [[ "${IFACES}" != *eth0* ]];
+    if [[ "${IFACES}" != *eth0* ]]; then
       echo "An eth style interface was found, but not eth0. This is a problem."
       echo "Please check that the 1st interface is eth0"
       echo "If this VM uses ens style, report this error to CIS-VO as a bug"
