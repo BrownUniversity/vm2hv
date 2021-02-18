@@ -11,6 +11,8 @@ root() {
 OSDIST=$(lsb_release -d)
 OSVER=$(lsb_release -r | grep -oP "[0-9]+" | head -1)
 UDEV=/etc/udev/rules.d/70-persistent-net.rules
+SYSC=/etc/sysconfig
+NWS=${SYSC}/network-scripts
 case ${OSDIST} in
   *[Uu]buntu*)
     OSDIST=ubuntu
