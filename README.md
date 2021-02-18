@@ -29,11 +29,11 @@ When doing zerto migrattions leave VMware until after the migration is complete,
 run post-zerto.sh
 
 ```
-# wget https://raw.githubusercontent.com/BrownUniversity/vm2hv/main/zerto.sh ; chmod 755 zertvert.sh
+# wget https://raw.githubusercontent.com/BrownUniversity/vm2hv/main/zerto.sh ; chmod 755 zerto.sh
 # ./zerto.sh -y
 
-# wget https://raw.githubusercontent.com/BrownUniversity/vm2hv/main/zertvert.sh ; chmod 755 zertvert.sh
-# ./zertvert.sh -y
+# wget https://raw.githubusercontent.com/BrownUniversity/vm2hv/main/post-zerto.sh ; chmod 755 post-zerto.sh
+# ./post-zerto.sh -y
 ```
 
 ## Requires
