@@ -147,10 +147,12 @@ case ${OSDIST} in
       7|6) 
         OSDIST=redhat
         vmtools
+        udev
         ;;
       8) 
         OSDIST=redhat
         vmtools
+        udev
         ;;
       *)
         echo "OS version failure"
