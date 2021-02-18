@@ -7,9 +7,10 @@ root() {
   fi
 }
 
+# Vars
 OSDIST=$(lsb_release -d)
 OSVER=$(lsb_release -r | grep -oP "[0-9]+" | head -1)
-
+UDEV=/etc/udev/rules.d/70-persistent-net.rules
 case ${OSDIST} in
   *[Uu]buntu*)
     OSDIST=ubuntu
@@ -18,6 +19,8 @@ case ${OSDIST} in
     OSDIST=redhat
     ;;
 esac
+
+
 
 # Help text variables
 NORM=`tput sgr0`
@@ -68,6 +71,11 @@ vmtools() {
       ;;
   esac
 }
+
+udev () {
+  rm ${UDEV}
+}
+
 
 # CLInt GENERATED_CODE: start
 # Default values

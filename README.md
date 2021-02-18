@@ -2,7 +2,7 @@
 
 ## Description
 
-Utility to assist in migration of RHEL system from ESXi to Hyper-V. 
+Utilities to assist in migration of RHEL system from ESXi to Hyper-V. 
 
 OS support:
 * RHEL 6
@@ -15,16 +15,7 @@ HyperV tools.
 
 ## How to Run on Systems or TL;DR
 
-This **should** be all you need to do on the VM before it is shutdown for conversion.
-### 
-
-This **should** be all you need to do on the VM before it is shutdown for conversion.
-
-```
-# wget https://raw.githubusercontent.com/BrownUniversity/vm2hv/main/vm2hv.sh ; chmod 755 vm2hv.sh
-# ./vm2hv.sh -y
-```
-This will config and shutdown the system. Conversion can begin.
+This **should** be what you need to do on the VM for it's conversion. 
 
 ### zerto and post-zerto
 
@@ -38,6 +29,15 @@ run post-zerto.sh
 # wget https://raw.githubusercontent.com/BrownUniversity/vm2hv/main/post-zerto.sh ; chmod 755 post-zerto.sh
 # ./post-zerto.sh -y
 ```
+### Starwinds
+
+This **should** be all you need to do on the VM before it is shutdown for conversion.
+
+```
+# wget https://raw.githubusercontent.com/BrownUniversity/vm2hv/main/starwinds.sh ; chmod 755 starwinds.sh
+# ./starwinds.sh -y
+```
+This will config and shutdown the system. Conversion can begin.
 
 ## Requires
 
@@ -45,19 +45,6 @@ run post-zerto.sh
 * yum
 
 And other standard unix utils. Nothing you need to install.
-
-## Usage
-
-Basic usage: *./vm2hv.sh*
-This will prep a RHEL 7 or 8 for V2V conversion
-to HyperV. By default it will convert and shutdown.
-
-This script will *NOT* execute conversion without the -y,--yes option
-
-        -y, --yes:              Execute the conversion.
-        -n, --noshutdown:       Do *NOT* shutdown at the end
-        -t, --test:             Show info about conversion
-        -r, --restore:          Restore system files
 
 ## What is does
 
