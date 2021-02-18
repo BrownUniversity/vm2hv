@@ -43,7 +43,6 @@ help() {
   echo -e "This script will ${BOLD}NOT${NORM} execute conversion without the -y,--yes option"
   echo -e ""
   echo -e "\t${BOLD}-y, --yes${NORM}:\t\tExecute the conversion."
-  echo -e "\t${BOLD}-n, --noshutdown${NORM}:\tDo ${BOLD}NOT${NORM} shutdown at the end"
   echo -e "\t${BOLD}-t, --test${NORM}:\t\tShow info about conversion"
   echo -e "\t${BOLD}-r, --restore${NORM}:\t\tRestore system files"
   echo -e ""
@@ -165,17 +164,6 @@ ubuntu() {
   fi
 }
 
-poweroff() {
-  if [[ "${_test}" -eq 1 ]] || [[ "${_noshutdown}" -eq 1 ]]; then
-    echo "No shutdown performed"
-    echo "=========="
-  ## shutdown
-  else
-    echo "Shutting down in 5 sec. CTRL-C to stop" && sleep 5
-    shutdown -h now
-  fi
-}
-
 # reverse it all
 restore() {
   case ${OSDIST} in
@@ -235,7 +223,6 @@ restore() {
 
 # CLInt GENERATED_CODE: start
 # Default values
-_noshutdown=0
 _test=0
 _restore=0
 
@@ -246,7 +233,6 @@ _restore=0
 for arg in "$@"; do
   shift
   case "$arg" in
-"--noshutdown") set -- "$@" "-n";;
 "--test") set -- "$@" "-t";;
 "--restore") set -- "$@" "-r";;
 "--yes") set -- "$@" "-y";;
@@ -263,7 +249,6 @@ while getopts 'hntrvy' OPT; do
     case $OPT in
         h) help
            exit 1 ;;
-        n) _noshutdown=1 ;;
         t) _test=1 ;;
         r) _restore=1 ;;
         y) _yes=1 ;;
@@ -299,14 +284,12 @@ case ${OSDIST} in
         ifaces
         backup
         ubuntu
-        poweroff
         ;;
       20)
         OSDIST=ubuntu
         ifaces
         backup
         ubuntu
-        poweroff
         ;;
       *)
         echo "OS Version failure"
@@ -322,14 +305,12 @@ case ${OSDIST} in
         ifaces
         backup
         rhel76
-        poweroff
         ;;
       8) 
         OSDIST=redhat
         ifaces
         backup
         rhel8
-        poweroff
         ;;
       *)
         echo "OS version failure"
