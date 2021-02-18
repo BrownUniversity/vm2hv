@@ -51,7 +51,7 @@ help() {
 
 # Code funtions
 ifaces() {
-  IFACES=$(/usr/bin/ls -1 /sys/class/net/ | grep -v lo | grep -E '^ens[0-9]{3}\b|^eth[0-9]{1}\b')
+  IFACES=$(/bin/ls -1 /sys/class/net/ | grep -v lo | grep -E '^ens[0-9]{3}\b|^eth[0-9]{1}\b')
   if [[ "${IFACES}" = *eth* ]]; then 
     if [[ "${IFACES}" != *eth0* ]]; then
       echo "An eth style interface was found, but not eth0. This is a problem."
@@ -103,19 +103,15 @@ rhel76() {
       # Still remove HWADDR from ethX
       for I in "${!IFA[@]}"; do
         sed -i "/HWADDR/d" ${NWS}/ifcfg-${IFA[$I]}
-        rm ${UDEV}
-        
       done
     fi
+    rm ${UDEV}
   fi
   if [ "${_test}" -eq 1 ]; then
     echo "mkinitrd -f -v --with=hid-hyperv --with=hv_utils --with=hv_vmbus --with=hv_storvsc --with=hv_netvsc /boot/initramfs-$(uname -r).img $(uname -r)"
-    echo "rm ${NRULES}"
   else
-    # Remove GATEWAY* from network file
     # run mkinitrd
     mkinitrd -f -v --with=hid-hyperv --with=hv_utils --with=hv_vmbus --with=hv_storvsc --with=hv_netvsc /boot/initramfs-$(uname -r).img $(uname -r)
-    rm ${NRULES}
   fi
 }
 
