@@ -74,6 +74,10 @@ vmtools() {
 
 udev () {
   rm ${UDEV}
+  # Still remove HWADDR from ethX
+  for I in 0 1 2 3 4 5; do
+    sed -i "/HWADDR/d" ${NWS}/ifcfg-eth${I}
+  done
 }
 
 
