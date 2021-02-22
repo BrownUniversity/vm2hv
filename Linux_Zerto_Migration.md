@@ -18,7 +18,7 @@ On Ppup4cit, run these command in the working ansible environment.
 This will backup important files, fix the networks, and update the kernel
 
 ```
-# ansible host1*:host2*:host3* -m shell -a "wget https://raw.githubusercontent.com/BrownUniversity/vm2hv/main/zerto.sh ; chmod 755 zerto.sh" -b
+# ansible host1*:host2*:host3* -m shell -a "wget -c https://raw.githubusercontent.com/BrownUniversity/vm2hv/main/zerto.sh ; chmod 755 zerto.sh" -b
 
 # ansible host1*:host2*:host3* -m shell -a "./zerto.sh -y" -b
 ```
@@ -37,7 +37,7 @@ These are the steps to do that.
 This will ensure VMware Tools are removed, HyperV tools are installed, and clear the MAC address for the switch to static.
 
 ```
-# ansible host1*:host2*:host3* -m shell -a "wget https://raw.githubusercontent.com/BrownUniversity/vm2hv/main/post-zerto.sh ; chmod 755 post-zerto.sh" -b
+# ansible host1*:host2*:host3* -m shell -a -c "wget https://raw.githubusercontent.com/BrownUniversity/vm2hv/main/post-zerto.sh ; chmod 755 post-zerto.sh" -b
 
 # ansible host1*:host2*:host3* -m shell -a "./post-zerto.sh -y" -b
 ```
