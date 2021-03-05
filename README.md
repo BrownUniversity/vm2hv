@@ -19,6 +19,8 @@ This **should** be what you need to do on the VM for it's conversion.
 
 ### zerto and post-zerto
 
+[Step-by-step with ansible commands here](Linux_Zerto_Migration.md)
+
 When doing zerto migrattions leave VMware until after the migration is complete, where you can then 
 run post-zerto.sh
 
