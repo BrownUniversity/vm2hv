@@ -34,16 +34,16 @@ qhostcit,HVIC01.hvi.brown.edu,intBackup_2wk
 This converts and shutdown the VM.
 
 2. Convert in Starwind
-  1. Wait until VM is stopped
-  2. Record duration 
+   1. Wait until VM is stopped
+   2. Record duration 
 
 3. Refresh VM in VMM
 4. Change the Network and OS in VMM properties
-  1. Click Properties, and modify "Operating System"
-  2. Click "Hardware Properties -> Network Adapter 1"
-  3. Click "Browse" and find subnet
-  4. Click OK
-  
+   1. Click Properties, and modify "Operating System"
+   2. Click "Hardware Properties -> Network Adapter 1"
+   3. Click "Browse" and find subnet
+   4. Click OK
+
 5. Start PowerShell as Administrator 
 6. Run Adjust-VMs.ps1 script with adjustments data file as argument
 ```
