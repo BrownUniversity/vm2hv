@@ -33,6 +33,8 @@ run post-zerto.sh
 ```
 ### Starwinds
 
+[Step-by-steop with Ansible commands here](howto-starwind.md)
+
 This **should** be all you need to do on the VM before it is shutdown for conversion.
 
 ```
