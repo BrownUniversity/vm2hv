@@ -33,7 +33,7 @@ run post-zerto.sh
 ```
 ### Starwinds
 
-[Step-by-steop with Ansible commands here](howto-starwind.md)
+[Step-by-step with Ansible commands here](howto-starwind.md)
 
 This **should** be all you need to do on the VM before it is shutdown for conversion.
 
@@ -42,6 +42,11 @@ This **should** be all you need to do on the VM before it is shutdown for conver
 # ./starwinds.sh -y
 ```
 This will config and shutdown the system. Conversion can begin.
+
+## Troubleshooting Linux
+
+This doc provides help for the most common Linux migrations issues:
+[Troubleshooting Linux Migration issues](linux-troubleshoot.md)
 
 ## Requires
 
