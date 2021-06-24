@@ -11,6 +11,7 @@ This script assists in the migration of VMs from vCloud Director instances to vC
 
 * LastPass
 * ssh (for remote script execution)
+* vcd-cli (for handling multiple VM vApps. Instructions: http://vmware.github.io/vcd-cli/
 
 ### Getting Started
 
@@ -64,6 +65,12 @@ $vm_command = "hostname" # Command to run on the VM prior to migration, if desir
 
 With the above variables filled out in the script, execute the script with `./vcd_to_vcenter.ps1` or `pwsh vcd_to_vcenter.ps1` if not in a current PS session. The script will probably take a while and advise you to get a drink because the migration involves two steps, a conversion to OVF and a download step. The speed of these tasks is entirely dependent on the size of the VM.
 
+### Handling multiple VM vApps
+
+Newly added is a feature that allows the script to handle vApps with multiple VMs while maintaining uptime for the rest of the VMs in the vApp. This is accomplished using the vcd-cli python package. Install instructions are here: http://vmware.github.io/vcd-cli/. If this package is installed, the script will automatically shutdown the target VM, create a new vApp, and copy the VM into it. The migration will then continue using the temporary vApp.
+
+When migration is complete, you will be prompted to remove the temporary vApp. It is generally safe and recommended to do so.
+
 ### Known Issues
 
-A vApp can contain multiple VMs. The script does have a safety switch to catch if a VM in part of a vApp with more than one VM so unintended VM shutdown does not occur. Moving a vApp with multiple VMs is possible, but may take an extremely long time and increases the chance of transfer failure (of which there is no recovery). To increase the chances of success, it is recommended that you create a temporary vApp and copy your VM into it. This can be accomplished using the vCloud Director interface. Complete instructions for this are beyond the scope of this document. Email `cis-vo@brown.edu` for support.
+A vApp can contain multiple VMs. The script does have a safety switch to catch if a VM in part of a vApp with more than one VM so unintended VM shutdown does not occur. Moving a vApp with multiple VMs is possible, but may take an extremely long time and increases the chance of transfer failure (of which there is no recovery). To increase the chances of success, it is recommended that you create a temporary vApp and copy your VM into it.
