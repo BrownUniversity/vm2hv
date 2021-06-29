@@ -1,9 +1,9 @@
 # vcd_to_vcenter.ps1 - Downloads and converts a VM from vCloud Director to vCenter
 
 # USER VARIABLES
-$vm_name = "pmailrelayanma1" # VM we ultimately want to convert
+$vm_name = "pmobilanma" # VM we ultimately want to convert
 $dns_suffix = "services.brown.edu" # DNS suffix for the VM. Used if running a script on the VM prior to conversion
-$vapp_name = "pmailrelayanma1" # vApp name. Will usually equal $vm_name, but not always. See instruction doc
+$vapp_name = "mweb" # vApp name. Will usually equal $vm_name, but not always. See instruction doc
 $dest_dc = "PRD" # Destination datastore in vCenter
 $dest_cluster = "prd500-cluster" # Destination cluster in vCenter
 $dest_datastore = "ds-p5-sc5020-lun002b" # Destination datastore in vCenter
@@ -21,6 +21,8 @@ $vsphere_server = $Env:VSPHERE_SERVER
 $vsphere_username = $Env:VSPHERE_USERNAME
 $vsphere_password = $Env:VSPHERE_PASSWORD
 
+$vm_local_username = $Env:VM_USERNAME
+
 # Don't touch the stuff below unless you know what you're doing
 
 $vcd_vdc = "Production"
@@ -36,10 +38,16 @@ Connect-VIServer -Server $vsphere_server -User $vsphere_username -Password $vsph
 $source_vm = Get-CIVM -Name $vm_name
 $source_vapp = Get-CIVapp -Name $vapp_name
 
+# Run a user-provided command on the VM prior to migration
+If ($vm_command -ne "") {
+    Write-Output "User requested to run a command on the remote VM prior to shutdown"
+    ssh ${vm_local_username}@${vm_name}.${dns_suffix} ${vm_command}
+}
+
 # Make sure the user actually wants to continue when a vApp contains multiple VMs
 If (($source_vapp | Get-CIVM | Measure-Object).Count -gt 1) {
     Write-Output "The vApp contains more than one VM. Assuming you want only one VM. vCloud Director CLI must be installed to continue."
-    ((Get-Command "vcd" -ErrorAction SilentlyContinue) -eq $null) {
+    If ((Get-Command "vcd" -ErrorAction SilentlyContinue) -eq $null) {
         Write-Output "Command vcd not found. Migration will not continue."
         exit
     }
@@ -47,15 +55,11 @@ If (($source_vapp | Get-CIVM | Measure-Object).Count -gt 1) {
     vcd login $vcd_server $vcd_org $vcd_username --password $vcd_password --vdc ${vcd_vdc} -w -i
     vcd vapp create ${vapp_name}_vc_migration
     vcd vm shutdown ${vapp_name} ${vm_name}
+    $org_vdc_network = vcd vm list-nics Mail ptodayanma | tail -n 1 | awk '{print $7}'
+    vcd vapp network create-ovdc-network ${vapp_name}_vc_migration ${org_vdc_network}
     vcd vm copy --target-vapp-name ${vapp_name}_vc_migration --target-vm-name ${vm_name} ${vapp_name} ${vm_name}
-    $source_vapp = Get-CIVM -Name ${vapp_name}_vc_migration
+    $source_vapp = Get-CIVApp -Name ${vapp_name}_vc_migration
     $temporary_vapp_in_use = $true
-}
-
-# Run a user-provided command on the VM prior to migration
-If ($vm_command -ne "") {
-    Write-Output "User requested to run a command on the remote VM prior to shutdown"
-    ssh ${vm_local_username}@${vm_name}.${dns_suffix} ${vm_command}
 }
 
 # Set the migrated VM's name
@@ -79,7 +83,7 @@ $source_vapp | Stop-CIVapp -Confirm:$false
 # Download and Import the VM to vCenter
 Write-Output "Starting download of OVF from vCloud. This will take a while. Grab a beverage."
 $start_time = (Get-Date).Second
-ovftool --datastore=${dest_datastore} --net:"${source_network}=${dest_network}" --name=${dest_vm_name} "vcloud://${vcd_username}:${vcd_password}@${vcd_server}/cloud?org=${vcd_org}&vdc=Production&catalog=Brown%20Catalog&vapp=${vapp_name}" "vi://${vsphere_username}:${vsphere_password}@${vsphere_server}/${dest_dc}/host/${dest_cluster}/Resources"
+ovftool --datastore=${dest_datastore} --net:"${source_network}=${dest_network}" --name=${dest_vm_name} "vcloud://${vcd_username}:${vcd_password}@${vcd_server}/cloud?org=${vcd_org}&vdc=Production&catalog=Brown%20Catalog&vapp=${source_vapp}" "vi://${vsphere_username}:${vsphere_password}@${vsphere_server}/${dest_dc}/host/${dest_cluster}/Resources"
 $end_time = (Get-Date).Second
 
 Write-Output "Download took $($end_time - $start_time) seconds to run."
