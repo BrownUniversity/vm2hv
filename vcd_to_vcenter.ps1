@@ -36,30 +36,30 @@ Connect-VIServer -Server $vsphere_server -User $vsphere_username -Password $vsph
 
 # Load the VM and vApp PS objects with data
 $source_vm = Get-CIVM -Name $vm_name
-$source_vapp = Get-CIVapp -Name $vapp_name
+$source_vapp = Get-CIVApp -Name $vapp_name
 
 # Run a user-provided command on the VM prior to migration
-If ($vm_command -ne "") {
-    Write-Output "User requested to run a command on the remote VM prior to shutdown"
-    ssh ${vm_local_username}@${vm_name}.${dns_suffix} ${vm_command}
+if ($vm_command -ne "") {
+  Write-Output "User requested to run a command on the remote VM prior to shutdown"
+  ssh ${vm_local_username}@${vm_name}.${dns_suffix} ${vm_command}
 }
 
 # Make sure the user actually wants to continue when a vApp contains multiple VMs
-If (($source_vapp | Get-CIVM | Measure-Object).Count -gt 1) {
-    Write-Output "The vApp contains more than one VM. Assuming you want only one VM. vCloud Director CLI must be installed to continue."
-    If ((Get-Command "vcd" -ErrorAction SilentlyContinue) -eq $null) {
-        Write-Output "Command vcd not found. Migration will not continue."
-        exit
-    }
-    Write-Output "Dropping into vcd-cli to complete VM copy"
-    vcd login $vcd_server $vcd_org $vcd_username --password $vcd_password --vdc ${vcd_vdc} -w -i
-    vcd vapp create ${vapp_name}_vc_migration
-    vcd vm shutdown ${vapp_name} ${vm_name}
-    $org_vdc_network = vcd vm list-nics Mail ptodayanma | tail -n 1 | awk '{print $7}'
-    vcd vapp network create-ovdc-network ${vapp_name}_vc_migration ${org_vdc_network}
-    vcd vm copy --target-vapp-name ${vapp_name}_vc_migration --target-vm-name ${vm_name} ${vapp_name} ${vm_name}
-    $source_vapp = Get-CIVApp -Name ${vapp_name}_vc_migration
-    $temporary_vapp_in_use = $true
+if (($source_vapp | Get-CIVM | Measure-Object).Count -gt 1) {
+  Write-Output "The vApp contains more than one VM. Assuming you want only one VM. vCloud Director CLI must be installed to continue."
+  if ($null -eq (Get-Command "vcd" -ErrorAction SilentlyContinue)) {
+    Write-Output "Command vcd not found. Migration will not continue."
+    exit
+  }
+  Write-Output "Dropping into vcd-cli to complete VM copy"
+  vcd login $vcd_server $vcd_org $vcd_username --password $vcd_password --vdc ${vcd_vdc} -w -i
+  vcd vapp create ${vapp_name}_vc_migration
+  vcd vm shutdown ${vapp_name} ${vm_name}
+  $org_vdc_network = vcd vm list-nics Mail ptodayanma | tail -n 1 | awk '{print $7}'
+  vcd vapp network create-ovdc-network ${vapp_name}_vc_migration ${org_vdc_network}
+  vcd vm Copy-Item --target-vapp-name ${vapp_name}_vc_migration --target-vm-name ${vm_name} ${vapp_name} ${vm_name}
+  $source_vapp = Get-CIVApp -Name ${vapp_name}_vc_migration
+  $temporary_vapp_in_use = $true
 }
 
 # Set the migrated VM's name
@@ -69,16 +69,16 @@ $dest_vm_name = "${vm_name}-vcd-migrated"
 $source_network = ($source_vm | Get-CINetworkAdapter).ExtensionData.Network
 
 # Shutdown the source VM and vApp and spin until they are shut off
-$source_vapp | Stop-CIVappGuest -Confirm:$false
+$source_vapp | Stop-CIVAppGuest -Confirm:$false
 
 # Poll for VM to be shut down
 while ((Get-CIVM $source_vm).Status -eq "PoweredOn") {
-    Start-Sleep -s 10
-    Write-Output "Waiting on VM to shut down..."
+  Start-Sleep -s 10
+  Write-Output "Waiting on VM to shut down..."
 }
 
 # Make sure the vApp is in a stopped state
-$source_vapp | Stop-CIVapp -Confirm:$false
+$source_vapp | Stop-CIVApp -Confirm:$false
 
 # Download and Import the VM to vCenter
 Write-Output "Starting download of OVF from vCloud. This will take a while. Grab a beverage."
@@ -93,13 +93,13 @@ $dest_vm = Get-VM $dest_vm_name
 $dest_vm | Get-NetworkAdapter | Set-NetworkAdapter -Connected $false
 
 # If variable is set, power on the VM at the destination vCenter
-If ($poweron_vm_at_destination) {
-    $dest_vm | Start-VM
+if ($poweron_vm_at_destination) {
+  $dest_vm | Start-VM
 }
 
-If ($temporary_vapp_in_use) {
-    $confirmation = Read-Host "Delete temporary vCloud vApp? (y/n)"
-    if ($confirmation -eq 'y') {
-        vcd vapp delete -y ${source_vapp}.Name
-    }
+if ($temporary_vapp_in_use) {
+  $confirmation = Read-Host "Delete temporary vCloud vApp? (y/n)"
+  if ($confirmation -eq 'y') {
+    vcd vapp delete -y ${source_vapp}.Name
+  }
 }
