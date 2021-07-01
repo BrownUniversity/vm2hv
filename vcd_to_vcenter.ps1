@@ -15,7 +15,7 @@ $poweron_vm_at_destination = $false # If $true, the VM will be powered on after 
 $vcd_server = $Env:VCD_SERVER
 $vcd_username = $Env:VCD_USERNAME
 $vcd_password = $Env:VCD_PASSWORD
-$vcd_org = $Env:VCD_ORG
+$vcd_org = $Env:VCD_ORG.ToLower()
 
 $vsphere_server = $Env:VSPHERE_SERVER
 $vsphere_username = $Env:VSPHERE_USERNAME
