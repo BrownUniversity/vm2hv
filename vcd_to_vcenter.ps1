@@ -55,7 +55,7 @@ if (($source_vapp | Get-CIVM | Measure-Object).Count -gt 1) {
   vcd login $vcd_server $vcd_org $vcd_username --password $vcd_password --vdc ${vcd_vdc} -w -i
   vcd vapp create ${vapp_name}_vc_migration
   vcd vm shutdown ${vapp_name} ${vm_name}
-  $org_vdc_network = vcd vm list-nics Mail ptodayanma | tail -n 1 | awk '{print $7}'
+  $org_vdc_network = vcd vm list-nics ${vapp_name} ${vm_name} | tail -n 1 | awk '{print $7}'
   vcd vapp network create-ovdc-network ${vapp_name}_vc_migration ${org_vdc_network}
   vcd vm Copy-Item --target-vapp-name ${vapp_name}_vc_migration --target-vm-name ${vm_name} ${vapp_name} ${vm_name}
   $source_vapp = Get-CIVApp -Name ${vapp_name}_vc_migration
