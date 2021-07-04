@@ -54,10 +54,12 @@ if (($source_vapp | Get-CIVM | Measure-Object).Count -gt 1) {
   Write-Output "Dropping into vcd-cli to complete VM copy"
   vcd login $vcd_server $vcd_org $vcd_username --password $vcd_password --vdc ${vcd_vdc} -w -i
   vcd vapp create ${vapp_name}_vc_migration
-  vcd vm shutdown ${vapp_name} ${vm_name}
+  If ((Get-CIVM -vApp ${vapp_name} ${vm_name}).Status -eq "PoweredOn" ) {
+    vcd vm shutdown ${vapp_name} ${vm_name}
+  }
   $org_vdc_network = vcd vm list-nics ${vapp_name} ${vm_name} | tail -n 1 | awk '{print $7}'
   vcd vapp network create-ovdc-network ${vapp_name}_vc_migration ${org_vdc_network}
-  vcd vm Copy-Item --target-vapp-name ${vapp_name}_vc_migration --target-vm-name ${vm_name} ${vapp_name} ${vm_name}
+  vcd vm copy --target-vapp-name ${vapp_name}_vc_migration --target-vm-name ${vm_name} ${vapp_name} ${vm_name}
   $source_vapp = Get-CIVApp -Name ${vapp_name}_vc_migration
   $temporary_vapp_in_use = $true
 }
@@ -69,16 +71,19 @@ $dest_vm_name = "${vm_name}-vcd-migrated"
 $source_network = ($source_vm | Get-CINetworkAdapter).ExtensionData.Network
 
 # Shutdown the source VM and vApp and spin until they are shut off
-$source_vapp | Stop-CIVAppGuest -Confirm:$false
-
-# Poll for VM to be shut down
-while ((Get-CIVM $source_vm).Status -eq "PoweredOn") {
-  Start-Sleep -s 10
-  Write-Output "Waiting on VM to shut down..."
+If ((Get-CIVM -vApp ${vapp_name} ${vm_name}).Status -eq "PoweredOn" ) {
+  $source_vapp | Stop-CIVAppGuest -Confirm:$false
+  # Poll for VM to be shut down
+  while ((Get-CIVM $source_vm).Status -eq "PoweredOn") {
+    Start-Sleep -s 10
+    Write-Output "Waiting on VM to shut down..."
+  }
 }
 
 # Make sure the vApp is in a stopped state
-$source_vapp | Stop-CIVApp -Confirm:$false
+If ((Get-CIVapp ${vapp_name}).Status -eq "PoweredOn" ) {
+  $source_vapp | Stop-CIVApp -Confirm:$false
+}
 
 # Download and Import the VM to vCenter
 Write-Output "Starting download of OVF from vCloud. This will take a while. Grab a beverage."
@@ -100,6 +105,8 @@ if ($poweron_vm_at_destination) {
 if ($temporary_vapp_in_use) {
   $confirmation = Read-Host "Delete temporary vCloud vApp? (y/n)"
   if ($confirmation -eq 'y') {
+    # Assume that on long transfers our vcd session has expired. Login again.
+    vcd login $vcd_server $vcd_org $vcd_username --password $vcd_password --vdc ${vcd_vdc} -w -i
     vcd vapp delete -y ${source_vapp}.Name
   }
 }
