@@ -44,6 +44,7 @@ help() {
   echo -e ""
   echo -e "\t${BOLD}-y, --yes${NORM}:\t\tExecute the conversion."
   echo -e "\t${BOLD}-t, --test${NORM}:\t\tShow info about conversion"
+  echo -e "\t${BOLD}-m, --mkinit${NORM}:\t\tDo ${BOLD}NOT${NORM} run mkinitrd command"
   echo -e "\t${BOLD}-r, --restore${NORM}:\t\tRestore system files"
   echo -e ""
   echo ""
