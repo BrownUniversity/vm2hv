@@ -117,7 +117,7 @@ rhel76() {
     echo "OS Version: RHEL ${OSVER}"
     echo "Interfaces found: ${IFA[@]}"
     echo "=========="
-    echo "rm ${NRULES}"
+    echo "rm ${UDEV}"
   else
     if [[ "${IFACES}" != *eth* ]]; then
       # fix the ifaces
@@ -130,9 +130,9 @@ rhel76() {
       # Still remove HWADDR from ethX
       for I in "${!IFA[@]}"; do
         sed -i "/HWADDR/d" ${NWS}/ifcfg-${IFA[$I]}
-        rm ${UDEV}
       done
     fi
+    rm ${UDEV}
   fi
   if [ "${_mkinit}" -eq 0 ]; then
     if [ "${_test}" -eq 1 ]; then
