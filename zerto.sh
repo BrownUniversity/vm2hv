@@ -44,6 +44,7 @@ help() {
   echo -e ""
   echo -e "\t${BOLD}-y, --yes${NORM}:\t\tExecute the conversion."
   echo -e "\t${BOLD}-t, --test${NORM}:\t\tShow info about conversion"
+  echo -e "\t${BOLD}-m, --mkinit${NORM}:\t\tDo ${BOLD}NOT${NORM} run mkinitrd command"
   echo -e "\t${BOLD}-r, --restore${NORM}:\t\tRestore system files"
   echo -e ""
   echo ""
@@ -91,6 +92,7 @@ rhel76() {
     echo "OS Version: RHEL ${OSVER}"
     echo "Interfaces found: ${IFA[@]}"
     echo "=========="
+    echo "rm ${UDEV}"
   else
     if [[ "${IFACES}" != *eth* ]]; then
       # fix the ifaces
@@ -107,11 +109,14 @@ rhel76() {
     fi
     rm ${UDEV}
   fi
-  if [ "${_test}" -eq 1 ]; then
-    echo "mkinitrd -f -v --with=hid-hyperv --with=hv_utils --with=hv_vmbus --with=hv_storvsc --with=hv_netvsc /boot/initramfs-$(uname -r).img $(uname -r)"
-  else
-    # run mkinitrd
-    mkinitrd -f -v --with=hid-hyperv --with=hv_utils --with=hv_vmbus --with=hv_storvsc --with=hv_netvsc /boot/initramfs-$(uname -r).img $(uname -r)
+  if [ "${_mkinit}" -eq 0 ]; then
+    if [ "${_test}" -eq 1 ]; then
+      echo "mkinitrd -f -v --with=hid-hyperv --with=hv_utils --with=hv_vmbus --with=hv_storvsc --with=hv_netvsc /boot/initramfs-$(uname -r).img $(uname -r)"
+      
+    else
+      # run mkinitrd
+      mkinitrd -f -v --with=hid-hyperv --with=hv_utils --with=hv_vmbus --with=hv_storvsc --with=hv_netvsc /boot/initramfs-$(uname -r).img $(uname -r)
+    fi
   fi
 }
 
@@ -121,6 +126,7 @@ rhel8() {
     echo "OS Version: RHEL ${OSVER}"
     echo "Interfaces found: ${IFA[@]}"
     echo "=========="
+    echo "sed -i '/GATEWAY/d; /GATEWAYDEV/d' ${SYSC}/network"
   else
     if [[ "${IFACES}" != *eth* ]]; then
       # fix the ifaces
@@ -133,15 +139,16 @@ rhel8() {
         sed -i "/HWADDR/d" ${NWS}/ifcfg-${IFA[$I]}
       done
     fi
-  fi
-  if [ "${_test}" -eq 1 ]; then
-    echo "sed -i '/GATEWAY/d; /GATEWAYDEV/d' ${SYSC}/network"
-    echo "mkinitrd -f -v --with=hid-hyperv --with=hv_utils --with=hv_vmbus --with=hv_storvsc --with=hv_netvsc /boot/initramfs-$(uname -r).img $(uname -r)"
-  else
     # Remove GATEWAY* from network file
     sed -i '/GATEWAY/d; /GATEWAYDEV/d' ${SYSC}/network
-    # run mkinitrd
-    mkinitrd -f -v --with=hid-hyperv --with=hv_utils --with=hv_vmbus --with=hv_storvsc --with=hv_netvsc /boot/initramfs-$(uname -r).img $(uname -r)
+  fi
+  if [ "${_mkinit}" -eq 0 ]; then
+    if [ "${_test}" -eq 1 ]; then
+      echo "mkinitrd -f -v --with=hid-hyperv --with=hv_utils --with=hv_vmbus --with=hv_storvsc --with=hv_netvsc /boot/initramfs-$(uname -r).img $(uname -r)"
+    else
+      # run mkinitrd
+      mkinitrd -f -v --with=hid-hyperv --with=hv_utils --with=hv_vmbus --with=hv_storvsc --with=hv_netvsc /boot/initramfs-$(uname -r).img $(uname -r)
+    fi
   fi
 }
 
@@ -229,6 +236,7 @@ restore() {
 # Default values
 _test=0
 _restore=0
+_mkinit=0
 
 # No-arguments is not allowed
 [ $# -eq 0 ] && help && exit 1
@@ -240,6 +248,7 @@ for arg in "$@"; do
 "--test") set -- "$@" "-t";;
 "--restore") set -- "$@" "-r";;
 "--yes") set -- "$@" "-y";;
+"--mkinit") set -- "$@" "-m";;
   *) set -- "$@" "$arg"
   esac
 done
@@ -249,13 +258,14 @@ function print_illegal() {
 }
 
 # Parsing flags and arguments
-while getopts 'hntrvy' OPT; do
+while getopts 'hntrvym' OPT; do
     case $OPT in
         h) help
            exit 1 ;;
         t) _test=1 ;;
         r) _restore=1 ;;
         y) _yes=1 ;;
+        m) _mkinit=1 ;;
         \?) print_illegal $@ >&2;
             echo "---"
             help
