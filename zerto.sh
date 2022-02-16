@@ -258,7 +258,7 @@ function print_illegal() {
 }
 
 # Parsing flags and arguments
-while getopts 'hntrvy' OPT; do
+while getopts 'hntrvym' OPT; do
     case $OPT in
         h) help
            exit 1 ;;
