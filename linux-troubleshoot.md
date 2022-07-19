@@ -75,11 +75,19 @@ kernel-3.10.0-1127.19.1.el7.x86_64
 
 Once this is complete, reboot.
 
-#### No 2nd kernel to boot
-If you are having the dracut error, but do **not** have a 2nd working kernel to
-boot into you will need to boot from the ISO DVD.
+#### Install older kernel
 
-- [ ] Add DVD instructions here
+Before attempting another migration install an older kernel to fall back on.
 
+```
+yum list --showduplicates kernel
+yum install kernel-3.10.0-1127.19.1.el7
+```
+
+Version **1127** is a good kernel for RHEL7
+
+Here are some useful links:
+[Change default kernel on boot](https://access.redhat.com/solutions/3089)
+[Find and install old kernels](https://www.systutorials.com/installing-specific-old-versions-of-packages-in-yum/)
 
 
