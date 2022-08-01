@@ -87,7 +87,7 @@ yum install kernel-3.10.0-1127.19.1.el7
 Version **1127** is a good kernel for RHEL7
 
 Here are some useful links:
-[Change default kernel on boot](https://access.redhat.com/solutions/3089)
-[Find and install old kernels](https://www.systutorials.com/installing-specific-old-versions-of-packages-in-yum/)
+* [Change default kernel on boot](https://access.redhat.com/solutions/3089)
+* [Find and install old kernels](https://www.systutorials.com/installing-specific-old-versions-of-packages-in-yum/)
 
 
