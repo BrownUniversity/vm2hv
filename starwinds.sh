@@ -117,7 +117,7 @@ backup() {
           ;;
         9)
           if [ "${_test}" -eq 1 ]; then
-            echo "tar cvf ${BKUP} ${NMCFG} ${IRAMFS} 
+            echo "tar cvf ${BKUP} ${NMCFG} ${IRAMFS}"
             echo "============"
           else  
             tar cvf ${BKUP} ${NMCFG} /boot/${IRAMFS}
