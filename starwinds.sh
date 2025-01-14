@@ -124,6 +124,7 @@ backup() {
           fi
           ;;
       esac
+      ;;
     ubuntu)
       if [ "${_test}" -eq 1 ]; then
         echo "tar cvf ${BKUP} ${NETP}/${NPUB}"
