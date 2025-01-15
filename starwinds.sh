@@ -212,7 +212,7 @@ rhel9() {
     if [[ "${IFACES}" != *eth* ]]; then
       # fix the ifaces
       for I in "${!IFA[@]}"; do
-        sed "s/${IFA[$I]}/eth${I}/g; /uuid/d" ${NMCFG}/${IFA[$I]}.nmconnection > ${NMCFG}/${IFA[$I]}.nmconnection
+        sed "s/${IFA[$I]}/eth${I}/g; /uuid/d" ${NMCFG}/${IFA[$I]}.nmconnection > ${NMCFG}/eth${I}.nmconnection
       done
     else
       # Still remove HWADDR from ethX
