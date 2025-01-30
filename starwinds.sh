@@ -11,23 +11,36 @@ root() {
 BKUP=/root/vm2hv-BAK.tar
 IRAMFS=initramfs-$(uname -r).img
 SYSC=/etc/sysconfig
+NMCFG=/etc/NetworkManager/system-connections
 UBMODS=/etc/initramfs-tools/modules
 NWS=${SYSC}/network-scripts
 NETP=/etc/netplan
 NPUB=99-netcfg-vmware.yaml
 NPHV=99-netcfg-hyperv.yaml
-OSDIST=$(lsb_release -d)
-OSVER=$(lsb_release -r | grep -oP "[0-9]+" | head -1)
 UDEV=/etc/udev/rules.d/70-persistent-net.rules
 
-case ${OSDIST} in
-  *[Uu]buntu*)
-    OSDIST=ubuntu
-    ;;
-  *[hH]at*)
+get_osdist() {
+  if [ -f /etc/redhat-release ]; then
     OSDIST=redhat
-    ;;
-esac
+    OSVER=$(cat /etc/redhat-release | cut -d" " -f 6 | grep -oP "[0-9]+"  | head -1)
+  elif [-f /etc/lsb-release]; then
+    source /etc/lsb-release
+    OSDIST=${DISTRIB_ID}
+    OSVER=${DISTRIB_RELEASE}
+  else
+    echo "Incompatible OS. Exiting"
+    exit 1
+  fi
+
+  case ${OSDIST} in
+    *[Uu]buntu*)
+      OSDIST=ubuntu
+      ;;
+    *[hH]at*)
+      OSDIST=redhat
+      ;;
+  esac
+}
 
 
 # Help text variables
@@ -93,12 +106,24 @@ backup() {
   echo "Saving network files"
   case ${OSDIST} in
     redhat)
-      if [ "${_test}" -eq 1 ]; then
-        echo "tar cvf ${BKUP} ${SYSC}/network ${NWS}/ifcfg-e* ${IRAMFS} ${UDEV}"
-        echo "============"
-      else  
-        tar cvf ${BKUP} ${SYSC}/network ${NWS}/ifcfg-e* /boot/${IRAMFS} ${UDEV}
-      fi
+      case ${OSVER} in
+        8|7|6)
+          if [ "${_test}" -eq 1 ]; then
+            echo "tar cvf ${BKUP} ${SYSC}/network ${NWS}/ifcfg-e* ${IRAMFS} ${UDEV}"
+            echo "============"
+          else  
+            tar cvf ${BKUP} ${SYSC}/network ${NWS}/ifcfg-e* /boot/${IRAMFS} ${UDEV}
+          fi
+          ;;
+        9)
+          if [ "${_test}" -eq 1 ]; then
+            echo "tar cvf ${BKUP} ${NMCFG} ${IRAMFS}"
+            echo "============"
+          else  
+            tar cvf ${BKUP} ${NMCFG} /boot/${IRAMFS}
+          fi
+          ;;
+      esac
       ;;
     ubuntu)
       if [ "${_test}" -eq 1 ]; then
@@ -177,6 +202,24 @@ rhel8() {
   fi
 }
 
+rhel9() {
+  #RHEL 9 function
+  if [ "${_test}" -eq 1 ]; then
+    echo "OS Version: RHEL ${OSVER}"
+    echo "Interfaces found: ${IFA[@]}"
+    echo "=========="
+  else
+    if [[ "${IFACES}" != *eth* ]]; then
+      # fix the ifaces
+      for I in "${!IFA[@]}"; do
+        nmcli con clone ${IFA[$I]} eth${I}
+        nmcli con modify eth${I} connection.interface-name eth${I}
+        rm -f ${NMCFG}/${IFA[$I]}.nmconnection
+      done
+    fi
+  fi
+}
+
 ubuntu() {
   # ubuntu function
   ## Check test
@@ -213,6 +256,7 @@ poweroff() {
 
 # reverse it all
 restore() {
+  get_osdist
   case ${OSDIST} in
     redhat)
       if [ "${_test}" -eq 1 ]; then
@@ -329,6 +373,7 @@ if [ "${_restore}" -eq 1 ]; then
 fi
 
 # OS test: RHEL or Ubuntu
+get_osdist
 case ${OSDIST} in
   ubuntu)
     case ${OSVER} in
@@ -371,6 +416,14 @@ case ${OSDIST} in
         backup
         vmtools
         rhel8
+        poweroff
+        ;;
+      9)
+        OSDIST=redhat
+        ifaces
+        backup
+        vmtools
+        rhel9
         poweroff
         ;;
       *)
