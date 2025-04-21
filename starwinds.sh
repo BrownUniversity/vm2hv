@@ -23,7 +23,7 @@ get_osdist() {
   if [ -f /etc/redhat-release ]; then
     OSDIST=redhat
     OSVER=$(cat /etc/redhat-release | cut -d" " -f 6 | grep -oP "[0-9]+"  | head -1)
-  elif [-f /etc/lsb-release]; then
+  elif [ -f /etc/lsb-release ]; then
     source /etc/lsb-release
     OSDIST=${DISTRIB_ID}
     OSVER=${DISTRIB_RELEASE}
@@ -385,7 +385,7 @@ case ${OSDIST} in
         ubuntu
         poweroff
         ;;
-      20)
+      20|22.04)
         OSDIST=ubuntu
         ifaces
         backup
