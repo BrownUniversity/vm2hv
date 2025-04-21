@@ -230,6 +230,7 @@ ubuntu() {
   else
     if [[ "${IFACES}" != *eth* ]]; then
       # Sed out interfaces
+      mv ${NETP}/${NPHV} ${NETP}/${NPUB}
       sed 's/ens160/eth0/g ; s/ens192/eth1/g ; s/ens224/eth2/g' ${NETP}/${NPUB} > ${NETP}/${NPHV}
       if [ -f ${NETP}/${NPHV} ] ; then 
         rm ${NETP}/${NPUB}
