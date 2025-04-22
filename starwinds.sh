@@ -127,10 +127,10 @@ backup() {
       ;;
     ubuntu)
       if [ "${_test}" -eq 1 ]; then
-        echo "tar cvf ${BKUP} ${NETP}/${NPUB}"
+        echo "tar cvf ${BKUP} ${NETP}/"
         echo "============"
       else  
-        tar cvf ${BKUP} ${NETP}/${NPUB}
+        tar cvf ${BKUP} ${NETP}/
       fi
       ;;
   esac
