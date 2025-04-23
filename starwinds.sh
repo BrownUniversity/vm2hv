@@ -386,7 +386,7 @@ case ${OSDIST} in
         ubuntu
         poweroff
         ;;
-      20|22.04)
+      20.04|22.04)
         OSDIST=ubuntu
         ifaces
         backup
